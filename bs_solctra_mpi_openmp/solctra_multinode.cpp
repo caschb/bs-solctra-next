@@ -500,7 +500,7 @@ void runParticles(const GlobalData& data, const std::string& output, Particle* p
 	if(myRank==0 && debugFlag){ startIOTime=MPI_Wtime(); }
 	
     //Write starting particle positions to file named: iteration0.bin
-    //printParallelIterationFile(particles, 0, output, myRank, length, offset);
+    /*printParallelIterationFile(particles, 0, output, myRank, length, offset);
     
     //printIterationFile(particles, 0, output, myRank,length);
 	
@@ -537,7 +537,7 @@ void runParticles(const GlobalData& data, const std::string& output, Particle* p
 
             
             
-            if (i%(steps/2)==0 && i!=steps){
+            /*if (i%(steps/2)==0 && i!=steps){
                 #pragma omp single
                 {
                     MPI_Barrier(MPI_COMM_WORLD);
@@ -547,7 +547,7 @@ void runParticles(const GlobalData& data, const std::string& output, Particle* p
                     }    
                 }        
                     
-            }    
+            }*/    
                 
             
 		    /*#pragma omp single
@@ -575,21 +575,21 @@ void runParticles(const GlobalData& data, const std::string& output, Particle* p
     // Each rank computes its execution time for the second half of the iterations (secondCompTime)
     compEndTime = MPI_Wtime();
     rankCompTime = compEndTime - compStartTime;
-    secondCompTime = compEndTime-compHalfTime;
+    //secondCompTime = compEndTime-compHalfTime;
     
     // Synchronizing all ranks to compute total execution time and balanced iterations time
     
     MPI_Barrier(MPI_COMM_WORLD);
     totalCompTime = MPI_Wtime() - compStartTime;
     if(myRank==0){
-        balancedTotalCompTime = MPI_Wtime();
-        balancedTime = balancedTotalCompTime - compHalfTime;
-        printExecutionTimeFile(balancedTime, output, 1);
+        //balancedTotalCompTime = MPI_Wtime();
+        //balancedTime = balancedTotalCompTime - compHalfTime;
+        //printExecutionTimeFile(balancedTime, output, 1);
         printExecutionTimeFile(totalCompTime, output, 2);
     }
     
     if(debugFlag){
-        printRankExecutionTimeFile(secondCompTime, output, myRank);
+        //printRankExecutionTimeFile(secondCompTime, output, myRank);
         printf("Rank %d, computation time: %f\n",myRank, rankCompTime);
         printf("Rank %d, divergence counter: %d\n",myRank,divergenceCounter);
         int totalDiverged;

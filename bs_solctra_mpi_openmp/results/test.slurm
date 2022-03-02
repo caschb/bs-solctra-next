@@ -1,7 +1,7 @@
 #!/bin/sh
 #SBATCH --job-name=bs-solctra-multinode
 #SBATCH --partition=nu-wide
-#SBATCH --nodes=8
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=64
 #SBATCH --time=1:00:00
@@ -56,6 +56,8 @@ export GOMP_CPU_AFFINITY=0-63
 
 #mpiexec -n 8 -bind-to core:64 ./bs-solctra-multinode -length 1024 -particles ../input_1000.txt -id $ID -resource ../resources/ -mode 1 -magnetic_prof 0 100 0 2 -print_type 1
 
-mpiexec -n 8 ./results/bs-solctra-multinode -length 1024 -particles input_1000.txt -id $ID -resource resources/ -mode 1 -magnetic_prof 0 100 0 2 -print_type 1
+#mpiexec -n 1 ./bs-solctra-multinode -length 1024 -particles input_1000.txt -id $ID -resource ../resources/ -steps 10 -mode 1 -magnetic_prof 0 100 0 2 -print_type 1
+
+mpiexec -n 1 ./bs-solctra-multinode -length 1024 -id $ID -resource ../resources/ -steps 100 -mode 1 -magnetic_prof 0 100 0 2 -print_type 1
 ######################################################################
 
