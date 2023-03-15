@@ -100,6 +100,30 @@ void printeroof(GlobalData& data, const int subsetIndex, const std::string& outp
                                                                                    
 }      
 
+void printIterationFileTxt(const Particle *particle_array, const int iteration, const int rank, const std::string &output, const int length)
+{
+    std::ostringstream convert;
+    convert << iteration;
+    convert << "_";
+    convert << rank;
+    std::string value = convert.str();
+    FILE *handler;
+    std::string file_name = output + "/iteration_" + value + ".txt";
+    handler = fopen(file_name.c_str(), "w");
+    if (nullptr == handler)
+    {
+        printf("Unable to open file=[%s]. Nothing to do\n", file_name.c_str());
+        exit(0);
+    }
+    fprintf(handler, "x,y,z\n");
+    for (int i = 0; i < length; i++)
+    {
+        fprintf(handler, "%e,%e,%e\n", particle_array[i].x, particle_array[i].y, particle_array[i].z);
+    }
+    fclose(handler);
+
+}
+
 cartesian magnetic_field(Coil* rmi, Coil* rmf, const GlobalData& data, const Particle& point)
 {
     const double multiplier = ( miu * I ) / ( 4 * PI );
@@ -122,7 +146,7 @@ cartesian magnetic_field(Coil* rmi, Coil* rmf, const GlobalData& data, const Par
             double* z = &data.coils.z[base];
 
  
-            #pragma omp simd aligned(rmiA,rmfA:64)
+            // #pragma omp simd aligned(rmiA,rmfA:64)
             for (unsigned j = jj; j < final ; ++j)
             {
                 rmiA[i].x[j] = point.x - x[j];
@@ -133,7 +157,7 @@ cartesian magnetic_field(Coil* rmi, Coil* rmf, const GlobalData& data, const Par
                 rmfA[i].z[j] = point.z - z[j + 1];
             }
 
-            #pragma omp simd aligned(rmiA,rmfA:64) reduction(+:Bx) reduction(-:By) reduction(+:Bz)
+            // #pragma omp simd aligned(rmiA,rmfA:64) reduction(+:Bx) reduction(-:By) reduction(+:Bz)
             for (unsigned j = jj; j < final ; ++j)
             {
                const double norm_Rmi = sqrt((( rmiA[i].x[j] * rmiA[i].x[j] ) + ( rmiA[i].y[j] * rmiA[i].y[j] ) +
@@ -177,10 +201,10 @@ cartesian magnetic_field(Coil* rmi, Coil* rmf, const GlobalData& data, const Par
     return B;
 }
 
+void printParallelIterationFile(const Particle *particle_array, const int iteration, const std::string &output, const int rank_id, const int length, const int offset)
+{
 
-void printParallelIterationFile(const Particle* particle_array, const int iteration, const std::string& output, const int rank_id, const int length, const int offset){
-
-	std::ostringstream convert;
+    std::ostringstream convert;
     convert << iteration;
     std::string value = convert.str();
 
@@ -197,7 +221,6 @@ void printParallelIterationFile(const Particle* particle_array, const int iterat
 	MPI_File_write_at(handler, offset*sizeof(struct Particle), particle_array, length, mpi_particle, &status);
 	MPI_File_close(&handler);
 }
-
 
 void printIterationFile(const Particle* particle_array, const int iteration, const std::string& output, const int rank_id, const int length){
 
@@ -508,7 +531,7 @@ void runParticles(const GlobalData& data, const std::string& output, Particle* p
         endIOTime = MPI_Wtime();
         totalIOTime+=endIOTime-startIOTime;
     }*/
-
+    printIterationFileTxt(particles, 0, myRank, output, length);
     MPI_Barrier(MPI_COMM_WORLD);
     compStartTime = MPI_Wtime();
 
@@ -527,44 +550,12 @@ void runParticles(const GlobalData& data, const std::string& output, Particle* p
 		 		}else{
 	                diverged = computeIteration(data,particles[j],step_size,mode,rmi,rmf, divergenceCounter);
 				}
-
-                /*if(diverged){
-                    particleIndex = (myRank*length)+j;
-                    printf("Diverged: %d\n", particleIndex);    
-                    diverged = false; 
-                }*/
 	  	    }
+        if(i%10 == 0)
+        {
+            printIterationFileTxt(particles, i, myRank, output, length);
+        }
 
-            
-            
-            /*if (i%(steps/2)==0 && i!=steps){
-                #pragma omp single
-                {
-                    MPI_Barrier(MPI_COMM_WORLD);
-                    compHalfTime = MPI_Wtime();
-                    if (myRank==0){
-                        printExecutionTimeFile(compHalfTime-compStartTime, output, 0);
-                    }    
-                }        
-                    
-            }*/    
-                
-            
-		    /*#pragma omp single
-		    {
-		     	if(i%100 == 0){
-
-					if(myRank==0 && debugFlag){ startIOTime=MPI_Wtime(); }
-
-		     		printParallelIterationFile(particles, i, output, myRank, length, offset);
-
-					if(myRank==0 && debugFlag){ 
-                        endIOTime = MPI_Wtime();
-                        totalIOTime+=endIOTime-startIOTime;
-                    }
-				}
-	 	    }*/
- 
 	  	}
 
 		 finishGlobal(rmi,rmf);

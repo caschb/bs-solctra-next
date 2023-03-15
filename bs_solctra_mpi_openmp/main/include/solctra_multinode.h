@@ -21,6 +21,7 @@ inline double norm_of(const Particle& vec)
 {
     return sqrt(( vec.x * vec.x ) + ( vec.y * vec.y ) + ( vec.z * vec.z ));
 }
+void printIterationFileTxt(const Particle *particle_array, const int iteration, const int rank, const std::string &output, const int length);
 void printParallelIterationFile(const Particle* particle_array, const int iteration, const std::string& output, const int rank_id, const int length, const int offset);
 void printIterationFile(const Particle* particle_array, const int iteration, const std::string& output, const int rank_id, const int length);
 void printRankExecutionTimeFile(const double compTime, const std::string& output, const int rank_id);
