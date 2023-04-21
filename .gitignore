@@ -2,3 +2,5 @@ build/*
 .vscode/*
 results*
 stdout*
+*stats.csv
+.cache

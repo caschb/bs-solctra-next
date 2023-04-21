@@ -118,7 +118,7 @@ void printIterationFileTxt(const Particle *particle_array, const int iteration, 
     fprintf(handler, "x,y,z\n");
     for (int i = 0; i < length; i++)
     {
-        fprintf(handler, "%e,%e,%e\n", particle_array[i].x, particle_array[i].y, particle_array[i].z);
+        fprintf(handler, "%f,%f,%f\n", particle_array[i].x, particle_array[i].y, particle_array[i].z);
     }
     fclose(handler);
 
