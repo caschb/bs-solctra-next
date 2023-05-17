@@ -227,6 +227,7 @@ void runParticles(Coils &coils, Coils &e_roof, LengthSegments &length_segments,
   compStartTime = MPI_Wtime();
 
   for (int step = 1; step <= steps; ++step) {
+    #pragma omp parallel for
     for (auto &particle : particles) {
       if ((particle.x == MINOR_RADIUS) && (particle.y == MINOR_RADIUS) &&
           (particle.z == MINOR_RADIUS)) {
