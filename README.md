@@ -18,13 +18,10 @@ To check the status of your job type:
 
 $ qstat -u <username> 
  
-or 
+or
 
 $ watch -n 5 qstat -u <username>
 
 To check information on your project's allocation use:
 
 $ sbank
-
-
-

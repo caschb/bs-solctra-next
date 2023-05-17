@@ -1,6 +1,6 @@
+results*
 build/*
 .vscode/*
-results*
 stdout*
-*stats.csv
-.cache
+.cache/*
+stats.csv
