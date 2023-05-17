@@ -18,27 +18,6 @@
 #include <sys/time.h>
 #include <vector>
 
-void loadCartesianFile(double *x, double *y, double *z, const int length,
-                       const std::string &path) {
-  FILE *file_buff;
-  // Open file
-  file_buff = fopen(path.c_str(), "r");
-  if (file_buff == nullptr) {
-    printf("Error al abrir archivo \n");
-    exit(0);
-  } else {
-    double localX, localY, localZ;
-    printf("Loading %s with length=%d\n", path.c_str(), length);
-    for (int point = 0; point < length; point++) {
-      fscanf(file_buff, "%le %le %le", &localX, &localY, &localZ);
-      x[point] = localX;
-      y[point] = localY;
-      z[point] = localZ;
-    }
-    fclose(file_buff);
-  }
-}
-
 void loadParticleFile(Particles &particles, const int numberOfParticles,
                       const std::string_view path) {
   static const auto delimeter = "\t";
@@ -105,7 +84,7 @@ Cartesian computeMagneticField(const Coils &coils, const Coils &e_roof,
                                Coils &rmi, Coils &rmf,
                                const LengthSegments &length_segments,
                                const Particle &point) {
-  static const auto multiplier = (miu * I) / (4.0 * PI);
+  static const auto multiplier = (MIU * I) / (4.0 * PI);
   Cartesian B;
 
   for (auto i = 0; i < TOTAL_OF_COILS; ++i) {
@@ -230,18 +209,6 @@ double randomGenerator(const double min, const double max,
   double result = distribution(gen);
   return result;
 }
-
-/*double randomGeneratorExponential(const double maxNumber){
-    std::random_device rd; //Used to obtain a seed for the random number
-    std::mt19937 gen(rd());
-    std::exponential_distribution<double> distribution(1.0);
-    double result = distribution(gen);
-    if(result>1.0){
-        double factor = gen.max()/maxNumber;
-        result = result/factor;
-    }else{ result = result*maxNumber;}
-    return result;
-}*/
 
 void initializeParticles(Particles &particles, const int seedValue) {
   double radius;

@@ -7,21 +7,9 @@
 #include <fstream>
 #include <iostream>
 #include <mpi.h>
-#include <mpi_proto.h>
 #include <sstream>
 #include <string>
 
-void load_coil_data(double *x, double *y, double *z, const std::string &path) {
-  for (int num = 0; num < TOTAL_OF_COILS; num++) {
-    std::ostringstream convert;
-    convert << num;
-    std::string value = convert.str();
-    std::string tmp = path + "/Bobina" + value + "m.txt";
-    loadCartesianFile(
-        &(x[num * TOTAL_OF_GRADES_PADDED]), &(y[num * TOTAL_OF_GRADES_PADDED]),
-        &(z[num * TOTAL_OF_GRADES_PADDED]), TOTAL_OF_GRADES + 1, tmp);
-  }
-}
 
 void printIterationFileTxt(Particles &particles, const int iteration,
                            const int rank, const std::string &output) {

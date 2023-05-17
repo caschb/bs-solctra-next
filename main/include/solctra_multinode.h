@@ -5,7 +5,6 @@
 #include <cmath>
 #include <sstream>
 #include <string>
-void load_coil_data(double *x, double *y, double *z, const std::string &path);
 
 void printIterationFile(const Particle *particle_array, const int iteration,
                         const std::string &output, const int rank_id,
