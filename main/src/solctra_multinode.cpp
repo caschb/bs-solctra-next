@@ -107,7 +107,7 @@ void printExecutionTimeFile(const double compTime, const std::string &output,
 bool computeIteration(const Coils &coils, const Coils &e_roof,
                       const LengthSegments &length_segments,
                       Particle &start_point, const double &step_size,
-                      const int mode, Coils &rmi, Coils &rmf,
+                      const int mode,
                       int &divergenceCounter) {
   bool diverged = false;
   Particle p1;
@@ -124,6 +124,9 @@ bool computeIteration(const Coils &coils, const Coils &e_roof,
   Cartesian r_vector;
   double norm_temp;
   double r_radius;
+
+  Coils rmi;
+  Coils rmf;
 
   constexpr double half = 1.0 / 2.0;
   k1 = computeMagneticField(coils, e_roof, rmi, rmf, length_segments,
@@ -198,8 +201,7 @@ void runParticles(Coils &coils, Coils &e_roof, LengthSegments &length_segments,
   double rankCompTime = NAN;
   double totalCompTime = NAN;
 
-  Coils rmi;
-  Coils rmf;
+
 
   MPI_Scan(&length, &prefixSize, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
   offset = prefixSize - length;
@@ -222,7 +224,7 @@ void runParticles(Coils &coils, Coils &e_roof, LengthSegments &length_segments,
         continue;
       } else {
         computeIteration(coils, e_roof, length_segments, particle, step_size,
-                         mode, rmi, rmf, divergenceCounter);
+                         mode, divergenceCounter);
       }
     }
     if (step % 10 == 0) {
