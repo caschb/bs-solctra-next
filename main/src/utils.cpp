@@ -235,7 +235,7 @@ void initializeParticles(Particles &particles, const int seedValue) {
   }
 }
 
-double getCurrentTime() {
+auto getCurrentTime() {
   struct timeval tod;
   gettimeofday(&tod, nullptr);
   return static_cast<double>(tod.tv_sec) +
@@ -264,7 +264,7 @@ bool directoryExists(const std::string &path) {
   }
 }
 
-std::string getZeroPadded(const int num) {
+auto getZeroPadded(const int num) {
   std::ostringstream convert;
   convert << num;
   std::string value = convert.str();

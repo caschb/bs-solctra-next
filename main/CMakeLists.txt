@@ -14,5 +14,9 @@ if(${TREAT_WARNINGS_AS_ERRORS})
 endif()
 
 if(${VECTOR})
-    target_compile_options(${EXECUTABLE_TARGET} PRIVATE -ffast-math -march=knl -mavx512f -mavx512pf -mavx512er -mavx512cd)
+    target_compile_options(${EXECUTABLE_TARGET} PRIVATE -march=knl -mavx512f -mavx512pf -mavx512er -mavx512cd)
+endif()
+
+if(${FAST_MATH})
+    target_compile_options(${EXECUTABLE_TARGET} PRIVATE -ffast-math)
 endif()
