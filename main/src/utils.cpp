@@ -182,21 +182,21 @@ void computeMagneticProfile(
 
 void computeERoof(Coils &coils, Coils &e_roof,
                   LengthSegments &length_segments) {
-  Cartesian segment;
+  Cartesian point;
   for (int i = 0; i < TOTAL_OF_COILS; i++) {
     // #pragma GCC ivdep
     for (int j = 0; j < TOTAL_OF_GRADES; j++) {
 
-      segment.x = (coils[i][j + 1].x) - (coils[i][j].x);
-      segment.y = (coils[i][j + 1].y) - (coils[i][j].y);
-      segment.z = (coils[i][j + 1].z) - (coils[i][j].z);
+      point.x = (coils[i][j + 1].x) - (coils[i][j].x);
+      point.y = (coils[i][j + 1].y) - (coils[i][j].y);
+      point.z = (coils[i][j + 1].z) - (coils[i][j].z);
 
-      length_segments[i][j] = norm_of(segment);
+      length_segments[i][j] = norm_of(point);
 
       const double length_segment_inverted = 1.0 / length_segments[i][j];
-      e_roof[i][j].x = segment.x * length_segment_inverted;
-      e_roof[i][j].y = segment.y * length_segment_inverted;
-      e_roof[i][j].z = segment.z * length_segment_inverted;
+      e_roof[i][j].x = point.x * length_segment_inverted;
+      e_roof[i][j].y = point.y * length_segment_inverted;
+      e_roof[i][j].z = point.z * length_segment_inverted;
     }
   }
 }

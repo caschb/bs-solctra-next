@@ -18,8 +18,8 @@
 struct Cartesian {
   double x{0.0}, y{0.0}, z{0.0};
   void print() { std::cout << x << ',' << y << ',' << z << '\n'; }
-  Cartesian(double x = 0.0, double y = 0.0, double z = 0.0)
-      : x(x), y(y), z(z) {}
+  Cartesian(double x_e = 0.0, double y_e = 0.0, double z_e = 0.0)
+      : x(x_e), y(y_e), z(z_e) {}
   friend std::ostream &operator<<(std::ostream &os,
                                   const Cartesian &cartesian) {
     os << cartesian.x << ',' << cartesian.y << ',' << cartesian.z;

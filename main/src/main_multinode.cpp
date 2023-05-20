@@ -11,16 +11,16 @@
 #include <utils.h>
 #include <vector>
 
-const unsigned DEFAULT_STEPS = 100000;
-const double DEFAULT_STEP_SIZE = 0.001;
-const unsigned DEFAULT_PRECISION = 5;
-const unsigned DEFAULT_MODE = 1;
-const std::string DEFAULT_RESOURCES = "resources";
-const unsigned DEFAULT_MAGPROF = 0;
-const unsigned DEFAULT_NUM_POINTS = 10000;
-const unsigned DEFAULT_PHI_ANGLE = 0;
-const unsigned DEFAULT_DIMENSION = 1;
-const unsigned DEFAULT_DEBUG = 0;
+constexpr auto DEFAULT_STEPS = 100000;
+constexpr auto DEFAULT_STEP_SIZE = 0.001;
+constexpr auto DEFAULT_PRECISION = 5;
+constexpr auto DEFAULT_MODE = 1;
+constexpr auto DEFAULT_RESOURCES = "resources";
+constexpr auto DEFAULT_MAGPROF = 0;
+constexpr auto DEFAULT_NUM_POINTS = 10000;
+constexpr auto DEFAULT_PHI_ANGLE = 0;
+constexpr auto DEFAULT_DIMENSION = 1;
+constexpr auto DEFAULT_DEBUG = 0;
 
 unsigned getPrintPrecisionFromArgs(const int &argc, char **argv) {
   for (int i = 1; i < argc - 1; ++i) {
@@ -275,8 +275,8 @@ int main(int argc, char **argv) {
   /*********** Rank 0 reads in all particles ******/
   std::vector<Particle> particles(length);
 
-  double startInitializationTime = 0;
-  double endInitializationTime = 0;
+  double startInitializationTime = 0.0;
+  double endInitializationTime = 0.0;
 
   // Only rank 0 reads the information from the input file
   if (myRank == 0) {
