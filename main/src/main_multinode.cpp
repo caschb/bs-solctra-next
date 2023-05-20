@@ -63,7 +63,7 @@ void LoadParticles(const int &argc, char **argv, Particles &particles,
     }
   }
   if (!found) {
-    printf("No file given. Initializing random particles\n");
+    std::cout << "No file given. Initializing random particles\n";
     initializeParticles(particles, seedValue);
   }
 }
@@ -85,7 +85,7 @@ unsigned getParticlesLengthFromArgs(const int &argc, char **argv) {
       return static_cast<unsigned>(atoi(argv[i + 1]));
     }
   }
-  printf("ERROR: You must specify number of particles to simulate\n");
+  std::cerr << "ERROR: You must specify number of particles to simulate\n";
   exit(1);
 }
 
@@ -116,7 +116,7 @@ std::string getJobId(const int &argc, char **argv) {
       return std::string(argv[i + 1]);
     }
   }
-  printf("ERROR: job id must be given!!\n");
+  std::cerr << "ERROR: job id must be given!!\n";
   exit(1);
 }
 
@@ -291,7 +291,7 @@ int main(int argc, char **argv) {
                 << (endInitializationTime - startInitializationTime) << "]."
                 << std::endl;
     }
-    printf("Particles initialized\n");
+    std::cout << "Particles initialized\n";
   }
 
   int myShare = length / commSize;

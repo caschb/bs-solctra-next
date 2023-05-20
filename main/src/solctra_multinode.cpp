@@ -38,7 +38,7 @@ void printRankExecutionTimeFile(const double compTime,
   std::string file_name = output + "/rank_" + valueRank + "_compTime.txt";
   handler = fopen(file_name.c_str(), "a");
   if (nullptr == handler) {
-    printf("Unable to open file=[%s]. Nothing to do\n", file_name.c_str());
+    std::cerr << "Unable to open file=[" << file_name << "]. Nothing to do\n";
     exit(0);
   }
 
@@ -55,7 +55,7 @@ void printExecutionTimeFile(const double compTime, const std::string_view output
   auto file_name = filename_ss.str();
   auto handler = fopen(file_name.c_str(), "a");
   if (nullptr == handler) {
-    printf("Unable to open file=[%s]. Nothing to do\n", file_name.c_str());
+    std::cerr << "Unable to open file=[" << file_name << "]. Nothing to do\n";
     exit(0);
   }
 

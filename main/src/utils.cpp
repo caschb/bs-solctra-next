@@ -211,27 +211,20 @@ double randomGenerator(const double min, const double max,
 }
 
 void initializeParticles(Particles &particles, const int seedValue) {
-  double radius;
-  double minorRadius;
-  double toroidalAngle;
-  double poloidalAngle;
-  double toroidalRadians;
-  double poloidalRadians;
-  auto length = particles.size();
-  printf("Initializing with seed %d\n", seedValue);
-  for (size_t point = 0; point < length; point++) {
-    radius = randomGenerator(0.0, 0.4, seedValue);
-    toroidalAngle = randomGenerator(0.0, 360.0, seedValue);
-    poloidalAngle = randomGenerator(0.0, 360.0, seedValue);
+  std::cout << "Initializing with seed " << seedValue << '\n';
+  for(auto &particle: particles){
+    auto radius = randomGenerator(0.0, 0.4, seedValue);
+    auto toroidalAngle = randomGenerator(0.0, 360.0, seedValue);
+    auto poloidalAngle = randomGenerator(0.0, 360.0, seedValue);
 
-    toroidalRadians = toroidalAngle * PI / 180.0;
-    poloidalRadians = poloidalAngle * PI / 180.0;
-    minorRadius = MINOR_RADIUS * radius;
-    particles[point].x = (MAJOR_RADIUS + (minorRadius)*cos(poloidalRadians)) *
+    auto toroidalRadians = toroidalAngle * PI / 180.0;
+    auto poloidalRadians = poloidalAngle * PI / 180.0;
+    auto minorRadius = MINOR_RADIUS * radius;
+    particle.x = (MAJOR_RADIUS + (minorRadius)*cos(poloidalRadians)) *
                          cos(toroidalRadians);
-    particles[point].y = (MAJOR_RADIUS + (minorRadius)*cos(poloidalRadians)) *
+    particle.y = (MAJOR_RADIUS + (minorRadius)*cos(poloidalRadians)) *
                          sin(toroidalRadians);
-    particles[point].z = (minorRadius)*sin(poloidalRadians);
+    particle.z = (minorRadius)*sin(poloidalRadians);
   }
 }
 
@@ -247,7 +240,7 @@ void createDirectoryIfNotExists(const std::string &path) {
     const int error =
         mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (0 > error) {
-      printf("Error creating directory!n");
+      std::cerr << "Error creating directory!\n";
       exit(1);
     }
   }
