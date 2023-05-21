@@ -57,8 +57,8 @@ void loadCoilData(Coils &coils, const std::string_view path) {
     std::string filename = filename_oss.str();
     std::ifstream coil_file(filename);
     std::string line;
-    auto line_number = 0;
-    while (std::getline(coil_file, line)) {
+    auto line_number = 0ul;
+    while (std::getline(coil_file, line) && line_number < coils[coil_number].size()) {
       size_t position = 0;
       std::array<double, 3> data;
       auto idx = 0;

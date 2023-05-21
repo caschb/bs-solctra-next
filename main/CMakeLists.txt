@@ -20,3 +20,8 @@ endif()
 if(${FAST_MATH})
     target_compile_options(${EXECUTABLE_TARGET} PRIVATE -ffast-math)
 endif()
+
+if(${ACTIVATE_SANITIZERS})
+    target_compile_options(${EXECUTABLE_TARGET} PRIVATE -fsanitize=address)
+    target_link_options(${EXECUTABLE_TARGET} PRIVATE -fsanitize=address)
+endif()
