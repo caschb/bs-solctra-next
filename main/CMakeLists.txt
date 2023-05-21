@@ -14,7 +14,7 @@ if(${TREAT_WARNINGS_AS_ERRORS})
 endif()
 
 if(${VECTOR})
-    target_compile_options(${EXECUTABLE_TARGET} PRIVATE -march=knl -mavx512f -mavx512pf -mavx512er -mavx512cd)
+    target_compile_options(${EXECUTABLE_TARGET} PRIVATE -mavx512f -mavx512pf -mavx512er -mavx512cd)
 endif()
 
 if(${FAST_MATH})
@@ -24,4 +24,14 @@ endif()
 if(${ACTIVATE_SANITIZERS})
     target_compile_options(${EXECUTABLE_TARGET} PRIVATE -fsanitize=address)
     target_link_options(${EXECUTABLE_TARGET} PRIVATE -fsanitize=address)
+endif()
+
+if(${GENERATE_OPTIMIZATION_REPORTS})
+    if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+    target_compile_options(${EXECUTABLE_TARGET} PRIVATE -Rpass="*" -Rpass-missed="*" -Rpass-analysis="*")
+    endif()
+
+    if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    target_compile_options(${EXECUTABLE_TARGET} PRIVATE -fopt-info-vec)
+    endif()
 endif()

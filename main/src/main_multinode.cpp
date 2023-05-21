@@ -159,9 +159,9 @@ int main(int argc, char **argv) {
   auto comm_size = 0u;
   auto name_len = 0u;
   char processor_name[MPI_MAX_PROCESSOR_NAME];
-  MPI_Comm_size(MPI_COMM_WORLD, (int *)&comm_size);
-  MPI_Comm_rank(MPI_COMM_WORLD, (int *)&my_rank);
-  MPI_Get_processor_name(processor_name, (int *)&name_len);
+  MPI_Comm_size(MPI_COMM_WORLD, reinterpret_cast<int *>(&comm_size));
+  MPI_Comm_rank(MPI_COMM_WORLD, reinterpret_cast<int *>(&my_rank));
+  MPI_Get_processor_name(processor_name, reinterpret_cast<int *>(&name_len));
 
   /********Create MPI particle type*****************/
   auto MPI_Cartesian = setupMPICartesianType();
