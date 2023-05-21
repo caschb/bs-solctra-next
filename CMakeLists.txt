@@ -5,7 +5,7 @@ option(VECTOR "Build for vector processor" OFF)
 option(FAST_MATH "Use fast-math flag" ON)
 option(TREAT_WARNINGS_AS_ERRORS "Treat all warnings as errors" ON)
 option(ACTIVATE_SANITIZERS "Turn on the sanitizers" OFF)
-option(GENERATE_OPTIMIZATION_REPORTS "Generates optimization reports" ON)
+option(GENERATE_OPTIMIZATION_REPORTS "Generates optimization reports" OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
