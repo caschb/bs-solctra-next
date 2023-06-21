@@ -3,8 +3,9 @@
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
-	"remoteUser": "root",
+	"containerUser": "myuser",
 	"hostRequirements": {
 		"cpus": 4
-	}
+	},
+	"postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}"
 }

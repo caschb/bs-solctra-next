@@ -153,8 +153,8 @@ unsigned getDimension(const int &argc, char **argv) {
 
 int main(int argc, char **argv) {
   /*****MPI variable declarations and initializations**********/
-  MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, nullptr);
-
+  auto provided = 0;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &provided);
   auto my_rank = 0u;
   auto comm_size = 0u;
   auto name_len = 0u;
@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
   MPI_Comm_size(MPI_COMM_WORLD, reinterpret_cast<int *>(&comm_size));
   MPI_Comm_rank(MPI_COMM_WORLD, reinterpret_cast<int *>(&my_rank));
   MPI_Get_processor_name(processor_name, reinterpret_cast<int *>(&name_len));
-
+  
   /********Create MPI particle type*****************/
   auto MPI_Cartesian = setupMPICartesianType();
   auto MPI_Coil = setupMPIArray(MPI_Cartesian, TOTAL_OF_GRADES);
