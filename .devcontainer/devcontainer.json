@@ -8,6 +8,12 @@
 		"cpus": 4
 	},
 	"postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+	"containerEnv": {
+		"CC": "clang",
+		"CXX": "clang++",
+		"MPI_CC": "clang",
+		"MPI_CXX": "clang++"
+	},
 	"customizations": {
 		"vscode": {
 			"extensions": [
