@@ -28,10 +28,10 @@ endif()
 
 if(${GENERATE_OPTIMIZATION_REPORTS})
     if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    target_compile_options(${EXECUTABLE_TARGET} PRIVATE -Rpass="*" -Rpass-missed="*" -Rpass-analysis="*")
+    target_compile_options(${EXECUTABLE_TARGET} PRIVATE -Rpass="*" -Rpass-missed="*" -Rpass-analysis="*" -fsave-optimization-record=yaml -foptimization-record-file=report-clang)
     endif()
 
     if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-    target_compile_options(${EXECUTABLE_TARGET} PRIVATE -fopt-info-vec)
+    target_compile_options(${EXECUTABLE_TARGET} PRIVATE -fopt-info-optall=report)
     endif()
 endif()
