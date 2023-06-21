@@ -7,5 +7,32 @@
 	"hostRequirements": {
 		"cpus": 4
 	},
-	"postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}"
+	"postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"tdennis4496.cmantic",
+				"llvm-vs-code-extensions.vscode-clangd",
+				"xaver.clang-format",
+				"ms-vscode.cpptools",
+				"twxs.cmake",
+				"vadimcn.vscode-lldb",
+				"ms-vscode.cmake-tools",
+				"codezombiech.gitignore",
+				"eamodio.gitlens",
+				"ajshort.include-autocomplete",
+				"oderwat.indent-rainbow",
+				"DavidAnson.vscode-markdownlint"
+			],
+			"settings": {
+				"[cpp]": {
+					"editor.defaultFormatter": "xaver.clang-format"
+				},
+				"C_Cpp.intelliSenseEngine": "disabled",
+				"cmake.configureOnOpen": false,
+				"cmake.configureOnEdit": false,
+				"files.autoSave": "afterDelay"
+			}
+		}
+	}
 }
