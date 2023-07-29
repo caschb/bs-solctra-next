@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
   MPI_Comm_size(MPI_COMM_WORLD, reinterpret_cast<int *>(&comm_size));
   MPI_Comm_rank(MPI_COMM_WORLD, reinterpret_cast<int *>(&my_rank));
   MPI_Get_processor_name(processor_name, reinterpret_cast<int *>(&name_len));
-  
+
   /********Create MPI particle type*****************/
   auto MPI_Cartesian = setupMPICartesianType();
   auto MPI_Coil = setupMPIArray(MPI_Cartesian, TOTAL_OF_GRADES);
@@ -171,13 +171,16 @@ int main(int argc, char **argv) {
 
   /*******Declaring program and runtime parameters*************/
   auto resource_path = DEFAULT_RESOURCES; // Coil directory path
-  auto steps = DEFAULT_STEPS;       // Amount of simulation steps
-  auto step_size = DEFAULT_STEP_SIZE;    // Size of each simulation step
+  auto steps = DEFAULT_STEPS;             // Amount of simulation steps
+  auto step_size = DEFAULT_STEP_SIZE;     // Size of each simulation step
 
   /*Variables for magnetic profile diagnostic*/
-  auto magprof = DEFAULT_MAGPROF; // Flag to control whether magnetic profile is computed
-  auto num_points = DEFAULT_NUM_POINTS; // Number of sampling points for magnetic profile
-  auto phi_angle = DEFAULT_PHI_ANGLE; // Angle at which the magnetic profile will be computed
+  auto magprof =
+      DEFAULT_MAGPROF; // Flag to control whether magnetic profile is computed
+  auto num_points =
+      DEFAULT_NUM_POINTS; // Number of sampling points for magnetic profile
+  auto phi_angle =
+      DEFAULT_PHI_ANGLE; // Angle at which the magnetic profile will be computed
   /******************************************/
 
   auto length = 0u; // Amount of particles to simulate
@@ -249,7 +252,8 @@ int main(int argc, char **argv) {
   if (0 != my_rank) {
     output.resize(output_size);
   }
-  MPI_Bcast(const_cast<char *>(output.data()), output_size, MPI_CHAR, 0, MPI_COMM_WORLD);
+  MPI_Bcast(const_cast<char *>(output.data()), output_size, MPI_CHAR, 0,
+            MPI_COMM_WORLD);
   /*********** Rank 0 distributes runtime parameters amongst ranks********/
 
   /*********** Rank 0 reads in all particles ******/
@@ -327,11 +331,22 @@ int main(int argc, char **argv) {
     startTime = MPI_Wtime();
     std::cout << "Executing simulation" << std::endl;
   }
+  Timings timings(comm_size);
   runParticles(coils, e_roof, length_segments, output, local_particles, length,
-               steps, step_size, mode, debug_flag);
-  MPI_Barrier(MPI_COMM_WORLD);
+               steps, step_size, mode, debug_flag, timings[my_rank]);
+
+  MPI_Gatherv(local_particles.data(), myShare, MPI_Cartesian, particles.data(),
+              groupMyShare.data(), displacements.data(), MPI_Cartesian, 0,
+              MPI_COMM_WORLD);
+  MPI_Gather(&timings[my_rank], 1, MPI_Cartesian, timings.data(), 1, MPI_Cartesian,
+             0, MPI_COMM_WORLD);
 
   if (my_rank == 0) {
+    for(const auto& timing: timings)
+    {
+      std::cout << timing << '\n';
+      handler << timing << '\n';
+    }
     endTime = MPI_Wtime();
     std::cout << "Simulation finished" << std::endl;
     std::cout << "Total execution time=[" << (endTime - startTime) << "]."

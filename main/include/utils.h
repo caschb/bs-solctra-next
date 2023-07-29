@@ -41,6 +41,8 @@ using LengthSegments =
     std::array<std::array<double, TOTAL_OF_GRADES>, TOTAL_OF_COILS>;
 using Particle = Cartesian;
 using Particles = std::vector<Particle>;
+using Timing = Cartesian;
+using Timings = std::vector<Timing>;
 
 MPI_Datatype setupMPICartesianType();
 MPI_Datatype setupMPIArray(MPI_Datatype base_type, int count);

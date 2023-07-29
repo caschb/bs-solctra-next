@@ -156,7 +156,7 @@ bool computeIteration(const Coils &coils, const Coils &e_roof,
 void runParticles(Coils &coils, Coils &e_roof, LengthSegments &length_segments,
                   const std::string_view output, Particles &particles,
                   const int length, const int steps, const double &step_size,
-                  const int mode, const int debugFlag) {
+                  const int mode, const int debugFlag, Timing& timing) {
   int myRank, prefixSize;
   MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
   MPI_Scan(&length, &prefixSize, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
@@ -170,8 +170,8 @@ void runParticles(Coils &coils, Coils &e_roof, LengthSegments &length_segments,
 
   MPI_Barrier(MPI_COMM_WORLD);
   printIterationFileTxt(particles, 0, myRank, output);
-  auto compStartTime = MPI_Wtime();
-
+  auto start = MPI_Wtime();
+  auto midpoint = 0.;
   auto divergenceCounter = 0;
   for (int step = 1; step <= steps; ++step) {
 #pragma omp parallel for
@@ -184,20 +184,23 @@ void runParticles(Coils &coils, Coils &e_roof, LengthSegments &length_segments,
                          mode, divergenceCounter);
       }
     }
-    if (step % 10 == 0) {
-      printIterationFileTxt(particles, step, myRank, output);
+    if (step == steps / 2)
+    {
+      midpoint = MPI_Wtime();
     }
+    // if (step % 10 == 0) {
+    //   printIterationFileTxt(particles, step, myRank, output);
+    // }
   }
 
-  auto compEndTime = MPI_Wtime();
-  auto rankCompTime = compEndTime - compStartTime;
+  auto final = MPI_Wtime();
+  auto rankCompTime = final - start;
+  timing.x = midpoint - start;
+  timing.y = final - midpoint;
+  timing.z = final - start;
 
   MPI_Barrier(MPI_COMM_WORLD);
-  auto totalCompTime = MPI_Wtime() - compStartTime;
 
-  if (myRank == 0) {
-    printExecutionTimeFile(totalCompTime, output, 2);
-  }
 
   if (debugFlag) {
     std::cout << "Rank " << myRank << ", computation time: " << rankCompTime
