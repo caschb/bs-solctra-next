@@ -2,10 +2,13 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <mpi.h>
 #include <solctra_multinode.h>
 #include <sstream>
+#include <string_view>
 #include <utils.h>
+#include <filesystem>
 
 void printIterationFileTxt(Particles &particles, const unsigned int iteration,
                            const int rank, const std::string_view output) {
@@ -25,6 +28,29 @@ void printIterationFileTxt(Particles &particles, const unsigned int iteration,
     handler << particle << '\n';
   }
   handler.close();
+}
+
+void printIterationFileTxtPerParticle(Particles &particles, const int rank, const std::string_view output) {
+  constexpr auto max_double_digits = std::numeric_limits<double>::max_digits10;
+  for(int idx = 0; const auto& particle : particles)
+  {
+    std::ostringstream filename_ss;
+    filename_ss << output << "/particle_" << rank << "_" << idx++ << ".txt"; 
+    if(!std::filesystem::exists(filename_ss.str()))
+    {
+      std::ofstream handler(filename_ss.str(), std::ios::app);
+      handler.precision(max_double_digits);
+      handler << "x,y,z\n";
+      handler << particle << '\n';
+      handler.close();
+    }
+    else {
+      std::ofstream handler(filename_ss.str(), std::ios::app);
+      handler.precision(max_double_digits);
+      handler << particle << '\n';
+      handler.close();
+    }
+  }
 }
 
 void printRankExecutionTimeFile(const double compTime,
@@ -169,7 +195,7 @@ void runParticles(Coils &coils, Coils &e_roof, LengthSegments &length_segments,
   }
 
   MPI_Barrier(MPI_COMM_WORLD);
-  printIterationFileTxt(particles, 0, myRank, output);
+  printIterationFileTxtPerParticle(particles, myRank, output);
   auto start = MPI_Wtime();
   auto midpoint = 0.;
   auto divergenceCounter = 0;
@@ -188,8 +214,8 @@ void runParticles(Coils &coils, Coils &e_roof, LengthSegments &length_segments,
     {
       midpoint = MPI_Wtime();
     }
-    // if (step % 10 == 0) {
-    //   printIterationFileTxt(particles, step, myRank, output);
+    // if (step % 1 == 0) {
+    printIterationFileTxtPerParticle(particles, myRank, output);
     // }
   }
 
