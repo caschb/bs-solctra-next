@@ -12,15 +12,15 @@
 #include <utils.h>
 #include <vector>
 
-constexpr auto DEFAULT_STEPS = 100000u;
+constexpr auto DEFAULT_STEPS = 100000U;
 constexpr auto DEFAULT_STEP_SIZE = 0.001;
-constexpr auto DEFAULT_MODE = 1u;
+constexpr auto DEFAULT_MODE = 1U;
 constexpr auto DEFAULT_RESOURCES = std::string("resources");
-constexpr auto DEFAULT_MAGPROF = 0u;
-constexpr auto DEFAULT_NUM_POINTS = 10000u;
+constexpr auto DEFAULT_MAGPROF = 0U;
+constexpr auto DEFAULT_NUM_POINTS = 10000U;
 constexpr auto DEFAULT_PHI_ANGLE = 0;
-constexpr auto DEFAULT_DIMENSION = 1u;
-constexpr auto DEFAULT_DEBUG = 0u;
+constexpr auto DEFAULT_DIMENSION = 1U;
+constexpr auto DEFAULT_DEBUG = 0U;
 
 auto getStepsFromArgs(const int &argc, char **argv) {
   for (int i = 1; i < argc - 1; ++i) {
@@ -155,18 +155,18 @@ int main(int argc, char **argv) {
   /*****MPI variable declarations and initializations**********/
   auto provided = 0;
   MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &provided);
-  auto my_rank = 0u;
-  auto comm_size = 0u;
-  auto name_len = 0u;
+  auto my_rank = 0U;
+  auto comm_size = 0U;
+  auto name_len = 0U;
   char processor_name[MPI_MAX_PROCESSOR_NAME];
   MPI_Comm_size(MPI_COMM_WORLD, reinterpret_cast<int *>(&comm_size));
   MPI_Comm_rank(MPI_COMM_WORLD, reinterpret_cast<int *>(&my_rank));
   MPI_Get_processor_name(processor_name, reinterpret_cast<int *>(&name_len));
 
   /********Create MPI particle type*****************/
-  auto MPI_Cartesian = setupMPICartesianType();
-  auto MPI_Coil = setupMPIArray(MPI_Cartesian, TOTAL_OF_GRADES);
-  auto MPI_LengthSegment = setupMPIArray(MPI_DOUBLE, TOTAL_OF_GRADES);
+  auto *MPI_Cartesian = setupMPICartesianType();
+  auto *MPI_Coil = setupMPIArray(MPI_Cartesian, TOTAL_OF_GRADES);
+  auto *MPI_LengthSegment = setupMPIArray(MPI_DOUBLE, TOTAL_OF_GRADES);
   /*************************************************/
 
   /*******Declaring program and runtime parameters*************/
@@ -183,7 +183,7 @@ int main(int argc, char **argv) {
       DEFAULT_PHI_ANGLE; // Angle at which the magnetic profile will be computed
   /******************************************/
 
-  auto length = 0u; // Amount of particles to simulate
+  auto length = 0U; // Amount of particles to simulate
   auto debug_flag = DEFAULT_DEBUG;
   auto mode = DEFAULT_MODE; // Check divergence of simulation or not
   auto dimension = DEFAULT_DIMENSION;
@@ -264,12 +264,12 @@ int main(int argc, char **argv) {
 
   // Only rank 0 reads the information from the input file
   if (my_rank == 0) {
-    if (debug_flag) {
+    if (debug_flag != 0U) {
       startInitializationTime = MPI_Wtime();
     }
     LoadParticles(argc, argv, particles, length, my_rank);
 
-    if (debug_flag) {
+    if (debug_flag != 0U) {
       endInitializationTime = MPI_Wtime();
       std::cout << "Total initialization time=["
                 << (endInitializationTime - startInitializationTime) << "]."
@@ -363,10 +363,10 @@ int main(int argc, char **argv) {
     handler << jobId << "," << length << "," << steps << "," << step_size << ","
             << output << "," << (endTime - startTime) << std::endl;
     handler.close();
-    time_t now = time(0);
-    char *dt = ctime(&now);
+    time_t now = time(nullptr);
+    char *deltaTime = ctime(&now);
 
-    std::cout << "Timestamp: " << dt << std::endl;
+    std::cout << "Timestamp: " << deltaTime << std::endl;
   }
 
   MPI_Finalize();
