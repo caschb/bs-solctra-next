@@ -20,6 +20,9 @@ target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE OpenMP::OpenMP_CXX)
 find_package(catalyst REQUIRED)
 target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE catalyst::catalyst)
 
+find_package(CLI11 REQUIRED)
+target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE CLI11::CLI11)
+
 if(bs_solctra_solctra_ENABLE_KNL_OPTS)
     target_compile_options(${EXECUTABLE_TARGET} PRIVATE -mavx512f -mavx512pf -mavx512er -mavx512cd -march=knl)
 endif()

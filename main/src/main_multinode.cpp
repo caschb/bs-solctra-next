@@ -1,4 +1,5 @@
 #include "solctra_multinode.h"
+#include <CLI/Validators.hpp>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -11,6 +12,9 @@
 #include <string>
 #include <utils.h>
 #include <vector>
+#include <CLI/CLI.hpp>
+
+using std::string;
 
 constexpr auto DEFAULT_STEPS = 100000U;
 constexpr auto DEFAULT_STEP_SIZE = 0.001;
@@ -22,136 +26,21 @@ constexpr auto DEFAULT_PHI_ANGLE = 0;
 constexpr auto DEFAULT_DIMENSION = 1U;
 constexpr auto DEFAULT_DEBUG = 0U;
 
-auto getStepsFromArgs(const int &argc, char **argv) {
-  for (int i = 1; i < argc - 1; ++i) {
-    std::string tmp = argv[i];
-    if (tmp == "-steps") {
-      return static_cast<unsigned>(atoi(argv[i + 1]));
-    }
+void load_particles(const std::string &particles_file, Particles &particles, const int length, const int seed_value)
+{
+  std::cout << particles_file << '\n';
+  if(!particles_file.empty())
+  {
+    loadParticleFile(particles, length, particles_file);
   }
-  return DEFAULT_STEPS;
-}
-auto getStepSizeFromArgs(const int &argc, char **argv) {
-  for (int i = 1; i < argc - 1; ++i) {
-    std::string tmp = argv[i];
-    if (tmp == "-stepSize") {
-      return strtod(argv[i + 1], nullptr);
-    }
+  else{
+    initializeParticles(particles, seed_value);
   }
-  return DEFAULT_STEP_SIZE;
-}
-
-void LoadParticles(const int &argc, char **argv, Particles &particles,
-                   const int length, const int seedValue) {
-  bool found = false;
-  for (int i = 1; i < argc - 1; ++i) {
-    std::string tmp = argv[i];
-    if (tmp == "-particles") {
-      std::cout << argv[i + 1] << '\n';
-      loadParticleFile(particles, length, argv[i + 1]);
-      found = true;
-      break;
-    }
-  }
-  if (!found) {
-    std::cout << "No file given. Initializing random particles\n";
-    initializeParticles(particles, seedValue);
-  }
-}
-
-auto getResourcePath(const int &argc, char **argv) {
-  for (int i = 1; i < argc - 1; ++i) {
-    std::string param = argv[i];
-    if ("-resource" == param) {
-      return std::string(argv[i + 1]);
-    }
-  }
-  return DEFAULT_RESOURCES;
-}
-
-unsigned getParticlesLengthFromArgs(const int &argc, char **argv) {
-  for (int i = 1; i < argc - 1; ++i) {
-    std::string tmp = argv[i];
-    if (tmp == "-length") {
-      return static_cast<unsigned>(atoi(argv[i + 1]));
-    }
-  }
-  std::cerr << "ERROR: You must specify number of particles to simulate\n";
-  exit(1);
-}
-
-unsigned getDebugFromArgs(const int &argc, char **argv) {
-  for (int i = 1; i < argc - 1; ++i) {
-    std::string tmp = argv[i];
-    if (tmp == "-d") {
-      return static_cast<unsigned>(atoi(argv[i + 1]));
-    }
-  }
-  return DEFAULT_DEBUG;
-}
-
-unsigned getModeFromArgs(const int &argc, char **argv) {
-  for (int i = 1; i < argc - 1; ++i) {
-    std::string tmp = argv[i];
-    if (tmp == "-mode") {
-      return static_cast<unsigned>(atoi(argv[i + 1]));
-    }
-  }
-  return DEFAULT_MODE;
-}
-
-std::string getJobId(const int &argc, char **argv) {
-  for (int i = 1; i < argc - 1; ++i) {
-    std::string tmp = argv[i];
-    if (tmp == "-id") {
-      return std::string(argv[i + 1]);
-    }
-  }
-  std::cerr << "ERROR: job id must be given!!\n";
-  exit(1);
-}
-
-unsigned getMagneticProfileFromArgs(const int &argc, char **argv) {
-  for (int i = 1; i < argc - 1; ++i) {
-    std::string tmp = argv[i];
-    if (tmp == "-magnetic_prof") {
-      return static_cast<unsigned>(atoi(argv[i + 1]));
-    }
-  }
-  return DEFAULT_MAGPROF;
-}
-
-unsigned getNumPointsFromArgs(const int &argc, char **argv) {
-  for (int i = 1; i < argc - 1; ++i) {
-    std::string tmp = argv[i];
-    if (tmp == "-magnetic_prof") {
-      return static_cast<unsigned>(atoi(argv[i + 2]));
-    }
-  }
-  return DEFAULT_NUM_POINTS;
-}
-
-unsigned getAngleFromArgs(const int &argc, char **argv) {
-  for (int i = 1; i < argc - 1; ++i) {
-    std::string tmp = argv[i];
-    if (tmp == "-magnetic_prof") {
-      return static_cast<unsigned>(atoi(argv[i + 3]));
-    }
-  }
-  return DEFAULT_PHI_ANGLE;
-}
-
-unsigned getDimension(const int &argc, char **argv) {
-  for (int i = 1; i < argc - 1; ++i) {
-    std::string tmp = argv[i];
-    if (tmp == "-magnetic_prof") {
-      return static_cast<unsigned>(atoi(argv[i + 4]));
-    }
-  }
-  return DEFAULT_DIMENSION;
 }
 
 int main(int argc, char **argv) {
+  CLI::App app("BS-Solctra");
+
   /*****MPI variable declarations and initializations**********/
   auto provided = 0;
   MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &provided);
@@ -183,10 +72,11 @@ int main(int argc, char **argv) {
       DEFAULT_PHI_ANGLE; // Angle at which the magnetic profile will be computed
   /******************************************/
 
-  auto length = 0U; // Amount of particles to simulate
-  auto debug_flag = DEFAULT_DEBUG;
-  auto mode = DEFAULT_MODE; // Check divergence of simulation or not
-  auto dimension = DEFAULT_DIMENSION;
+  auto length{0U}; // Amount of particles to simulate
+  auto debug_flag{DEFAULT_DEBUG};
+  auto mode{DEFAULT_MODE}; // Check divergence of simulation or not
+  auto dimension{DEFAULT_DIMENSION};
+  std::string particles_file;
   std::string output; // Path of results directory
   std::string jobId;  // JobID in the cluster
   std::ofstream handler;
@@ -195,31 +85,22 @@ int main(int argc, char **argv) {
   // Rank 0 reads input parameters from the command line
   // A log file is created to document the runtime parameters
   if (my_rank == 0) {
-
-    resource_path = getResourcePath(argc, argv);
-    steps = getStepsFromArgs(argc, argv);
-    step_size = getStepSizeFromArgs(argc, argv);
-    length = getParticlesLengthFromArgs(argc, argv);
-    mode = getModeFromArgs(argc, argv);
-    debug_flag = getDebugFromArgs(argc, argv);
-    magprof = getMagneticProfileFromArgs(argc, argv);
-    num_points = getNumPointsFromArgs(argc, argv);
-    phi_angle = getAngleFromArgs(argc, argv);
-    jobId = getJobId(argc, argv);
-    dimension = getDimension(argc, argv);
+    std::cout << "Reading\n";
+    app.add_option("--particles", particles_file, "Particles file")->check(CLI::ExistingFile);
+    app.add_option("--resource", resource_path, "Resource path")->check(CLI::ExistingPath)->capture_default_str();
+    app.add_option("--steps", steps, "Number of simulation steps")->check(CLI::PositiveNumber);
+    std::cout << steps << '\n';
+    app.add_option("--step-size", step_size, "Step Size")->check(CLI::PositiveNumber);
+    app.add_option("--length", length, "Length of the particle array")->check(CLI::PositiveNumber);
+    app.add_option("--mode", mode, "Mode of the simulation")->check(CLI::PositiveNumber);
+    app.add_option("--debug", debug_flag, "Enable debug messages")->check(CLI::PositiveNumber);
+    app.add_option("--magnetic-profile", magprof, "Magnetic profile");
+    app.add_option("--num-points", num_points, "Number of points");
+    app.add_option("--phi-angle",phi_angle,"Angle phi");
+    app.add_option("--dimension", "Dimension");
+    app.add_option("--job-id", jobId, "Job ID")->required()->check(CLI::PositiveNumber);
     output = "results_" + jobId;
     createDirectoryIfNotExists(output);
-
-    std::cout << "Communicator Size=[" << comm_size << "]." << std::endl;
-    std::cout << "Running with:" << std::endl;
-    std::cout << "Resource Path=[" << resource_path << "]." << std::endl;
-    std::cout << "JobId=[" << jobId << "]." << std::endl;
-    std::cout << "Steps=[" << steps << "]." << std::endl;
-    std::cout << "Steps size=[" << step_size << "]." << std::endl;
-    std::cout << "Particles=[" << length << "]." << std::endl;
-    std::cout << "Input Current=[" << I << "] A." << std::endl;
-    std::cout << "Mode=[" << mode << "]." << std::endl;
-    std::cout << "Output path=[" << output << "]." << std::endl;
     std::string file_name = "stdout_" + jobId + ".log";
 
     handler.open(file_name.c_str());
@@ -267,7 +148,7 @@ int main(int argc, char **argv) {
     if (debug_flag != 0U) {
       startInitializationTime = MPI_Wtime();
     }
-    LoadParticles(argc, argv, particles, length, my_rank);
+    load_particles(particles_file, particles, length, my_rank);
 
     if (debug_flag != 0U) {
       endInitializationTime = MPI_Wtime();
@@ -358,7 +239,7 @@ int main(int argc, char **argv) {
     if (!handler.is_open()) {
       std::cerr << "Unable to open stats.csv for appending. Nothing to do."
                 << std::endl;
-      exit(0);
+      std::quick_exit(0);
     }
     handler << jobId << "," << length << "," << steps << "," << step_size << ","
             << output << "," << (endTime - startTime) << std::endl;
