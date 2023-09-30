@@ -6,9 +6,10 @@ mpiexec -np 4\
     --particles ../data/input_1000.txt\
     --job-id $ID\
     --resource ../data/resources/\
-    --steps 500000\
+    --steps 256\
     --mode 1\
     --magnetic-profile 0\
     --num-points 100\
     --phi-angle 0\
-    --dimension 2
+    --dimension 2\
+    --debug 1
