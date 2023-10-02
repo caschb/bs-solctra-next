@@ -20,6 +20,9 @@ target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE OpenMP::OpenMP_CXX)
 find_package(catalyst REQUIRED)
 target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE catalyst::catalyst)
 
+find_package(spdlog REQUIRED)
+target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE spdlog::spdlog)
+
 find_package(CLI11 REQUIRED)
 target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE CLI11::CLI11)
 

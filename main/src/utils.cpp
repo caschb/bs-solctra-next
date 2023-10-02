@@ -12,20 +12,20 @@
 #include <fstream>
 #include <mpi.h>
 #include <random>
+#include <spdlog/spdlog.h>
 #include <sstream>
 #include <string>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <vector>
 
-void loadParticleFile(Particles &particles, const int numberOfParticles,
-                      const std::string_view path) {
+void loadParticleFile(Particles &particles, const int numberOfParticles, const std::string_view path)
+{
   static const auto delimeter = "\t";
   std::ifstream particles_file(path.data());
   std::string line;
   auto line_number = 0;
-  while (std::getline(particles_file, line) &&
-         line_number < numberOfParticles) {
+  while (std::getline(particles_file, line) && line_number < numberOfParticles) {
     size_t position = 0;
     std::array<double, 3> data;
     auto idx = 0;
@@ -35,9 +35,7 @@ void loadParticleFile(Particles &particles, const int numberOfParticles,
       auto tok = line.substr(current_pos, position - current_pos);
       data[idx] = strtod(tok.c_str(), nullptr);
       idx += 1;
-      if (position == std::string::npos || position >= line.size()) {
-        break;
-      }
+      if (position == std::string::npos || position >= line.size()) { break; }
       position += 1;
     }
     particles[line_number] = Particle(data[0], data[1], data[2]);
@@ -46,7 +44,8 @@ void loadParticleFile(Particles &particles, const int numberOfParticles,
   particles_file.close();
 }
 
-void loadCoilData(Coils &coils, const std::string_view path) {
+void loadCoilData(Coils &coils, const std::string_view path)
+{
 
   static const auto delimeter = "\t";
 
@@ -68,9 +67,7 @@ void loadCoilData(Coils &coils, const std::string_view path) {
         auto tok = line.substr(current_pos, position - current_pos);
         data[idx] = strtod(tok.c_str(), nullptr);
         idx += 1;
-        if (position == std::string::npos || position >= line.size()) {
-          break;
-        }
+        if (position == std::string::npos || position >= line.size()) { break; }
         position += 1;
       }
       coils[coil_number][line_number] = Cartesian(data[0], data[1], data[2]);
@@ -80,10 +77,13 @@ void loadCoilData(Coils &coils, const std::string_view path) {
   }
 }
 
-Cartesian computeMagneticField(const Coils &coils, const Coils &e_roof,
-                               Coils &rmi, Coils &rmf,
-                               const LengthSegments &length_segments,
-                               const Particle &point) {
+Cartesian computeMagneticField(const Coils &coils,
+  const Coils &e_roof,
+  Coils &rmi,
+  Coils &rmf,
+  const LengthSegments &length_segments,
+  const Particle &point)
+{
   static const auto multiplier = (MIU * I) / (4.0 * PI);
   Cartesian B;
 
@@ -104,10 +104,9 @@ Cartesian computeMagneticField(const Coils &coils, const Coils &e_roof,
       U.y = multiplier * e_roof[i][j].y;
       U.z = multiplier * e_roof[i][j].z;
 
-      const auto C = (((2 * (length_segments[i][j]) * (norm_rmi + norm_rmf)) /
-                       (norm_rmi * norm_rmf)) *
-                      ((1) / ((norm_rmi + norm_rmf) * (norm_rmi + norm_rmf) -
-                              length_segments[i][j] * length_segments[i][j])));
+      const auto C =
+        (((2 * (length_segments[i][j]) * (norm_rmi + norm_rmf)) / (norm_rmi * norm_rmf))
+          * ((1) / ((norm_rmi + norm_rmf) * (norm_rmi + norm_rmf) - length_segments[i][j] * length_segments[i][j])));
 
       Cartesian V;
       V.x = C * rmi[i][j].x;
@@ -122,10 +121,13 @@ Cartesian computeMagneticField(const Coils &coils, const Coils &e_roof,
   return B;
 }
 
-void computeMagneticProfile(
-    Coils &coils, Coils &e_roof, LengthSegments &length_segments,
-    const int num_points, const int phi_angle,
-    /*const std::string &output,*/ const int dimension) {
+void computeMagneticProfile(Coils &coils,
+  Coils &e_roof,
+  LengthSegments &length_segments,
+  const int num_points,
+  const int phi_angle,
+  /*const std::string &output,*/ const int dimension)
+{
   Coils rmi;
   Coils rmf;
   Cartesian point;
@@ -141,10 +143,8 @@ void computeMagneticProfile(
     width = (2 * minor_r) / num_points;
     std::vector<Particle> observation_particles(num_points);
     for (auto i = 0; auto &particle : observation_particles) {
-      particle.x = ((major_R - minor_r + (width * i)) + minor_r * cos(PI / 2)) *
-                   cos(radians);
-      particle.y = ((major_R - minor_r + (width * i)) + minor_r * cos(PI / 2)) *
-                   sin(radians);
+      particle.x = ((major_R - minor_r + (width * i)) + minor_r * cos(PI / 2)) * cos(radians);
+      particle.y = ((major_R - minor_r + (width * i)) + minor_r * cos(PI / 2)) * sin(radians);
       particle.z = 0.0;
       i += 1;
     }
@@ -152,8 +152,7 @@ void computeMagneticProfile(
       point.x = particle.x;
       point.y = particle.y;
       point.z = particle.z;
-      b_point =
-          computeMagneticField(coils, e_roof, rmi, rmf, length_segments, point);
+      b_point = computeMagneticField(coils, e_roof, rmi, rmf, length_segments, point);
       // TODO: write points
     }
   } else if (dimension == 2) {
@@ -163,8 +162,7 @@ void computeMagneticProfile(
       auto i = count / TOTAL_OF_GRADES;
       auto j = count % num_points;
       count += 1;
-      particle.x =
-          (major_R + ((width * j) * sin(i * (PI / 180)))) * cos(radians);
+      particle.x = (major_R + ((width * j) * sin(i * (PI / 180)))) * cos(radians);
       particle.y = ((width * j) * cos(i * PI / 180));
       particle.z = (major_R + (width * j) * sin(i * PI / 180)) * sin(radians);
     }
@@ -173,15 +171,14 @@ void computeMagneticProfile(
       point.x = particle.x;
       point.y = particle.y;
       point.z = particle.z;
-      b_point =
-          computeMagneticField(coils, e_roof, rmi, rmf, length_segments, point);
+      b_point = computeMagneticField(coils, e_roof, rmi, rmf, length_segments, point);
       // TODO: write points
     }
   }
 }
 
-void computeERoof(Coils &coils, Coils &e_roof,
-                  LengthSegments &length_segments) {
+void computeERoof(Coils &coils, Coils &e_roof, LengthSegments &length_segments)
+{
   Cartesian point;
   for (int i = 0; i < TOTAL_OF_COILS; i++) {
     // #pragma GCC ivdep
@@ -201,8 +198,8 @@ void computeERoof(Coils &coils, Coils &e_roof,
   }
 }
 
-double randomGenerator(const double min, const double max,
-                       const int seedValue) {
+double randomGenerator(const double min, const double max, const int seedValue)
+{
   // std::random_device rd; //Used to obtain a seed for the random number
   std::mt19937 gen(seedValue);
   std::uniform_real_distribution<double> distribution(min, max);
@@ -210,9 +207,10 @@ double randomGenerator(const double min, const double max,
   return result;
 }
 
-void initializeParticles(Particles &particles, const int seedValue) {
-  std::cout << "Initializing with seed " << seedValue << '\n';
-  for(auto &particle: particles){
+void initializeParticles(Particles &particles, const int seedValue)
+{
+  spdlog::debug("Initializing with seed: {}", seedValue);
+  for (auto &particle : particles) {
     auto radius = randomGenerator(0.0, 0.4, seedValue);
     auto toroidalAngle = randomGenerator(0.0, 360.0, seedValue);
     auto poloidalAngle = randomGenerator(0.0, 360.0, seedValue);
@@ -220,34 +218,22 @@ void initializeParticles(Particles &particles, const int seedValue) {
     auto toroidalRadians = toroidalAngle * PI / 180.0;
     auto poloidalRadians = poloidalAngle * PI / 180.0;
     auto minorRadius = MINOR_RADIUS * radius;
-    particle.x = (MAJOR_RADIUS + (minorRadius)*cos(poloidalRadians)) *
-                         cos(toroidalRadians);
-    particle.y = (MAJOR_RADIUS + (minorRadius)*cos(poloidalRadians)) *
-                         sin(toroidalRadians);
+    particle.x = (MAJOR_RADIUS + (minorRadius)*cos(poloidalRadians)) * cos(toroidalRadians);
+    particle.y = (MAJOR_RADIUS + (minorRadius)*cos(poloidalRadians)) * sin(toroidalRadians);
     particle.z = (minorRadius)*sin(poloidalRadians);
   }
 }
 
-auto getCurrentTime() {
+auto getCurrentTime()
+{
   struct timeval tod;
   gettimeofday(&tod, nullptr);
-  return static_cast<double>(tod.tv_sec) +
-         static_cast<double>(tod.tv_usec) * 1.0e-6;
+  return static_cast<double>(tod.tv_sec) + static_cast<double>(tod.tv_usec) * 1.0e-6;
 }
 
-void createDirectoryIfNotExists(const std::string &path) {
-  if (!directoryExists(path)) {
-    const int error =
-        mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    if (0 > error) {
-      std::cerr << "Error creating directory!\n";
-      exit(1);
-    }
-  }
-}
-
-bool directoryExists(const std::string &path) {
-  struct stat info;
+auto directoryExists(const std::string &path)
+{
+  struct stat info{};
   if (stat(path.c_str(), &info) != 0) {
     return false;
   } else if (info.st_mode & S_IFDIR) {
@@ -257,24 +243,35 @@ bool directoryExists(const std::string &path) {
   }
 }
 
-auto getZeroPadded(const int num) {
+void createDirectoryIfNotExists(const std::string &path)
+{
+  if (!directoryExists(path)) {
+    const int error = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    if (0 > error) {
+      spdlog::error("Error creating directory: {}", path);
+      exit(1);
+    }
+  }
+}
+
+auto getZeroPadded(const int num)
+{
   std::ostringstream convert;
   convert << num;
   std::string value = convert.str();
   const size_t numSize = value.size();
-  int numberZeros = 5; // Number of 0s wanted in file name:
-                       // particle00000...X.txt
-  for (size_t i = 0; i < numberZeros - numSize; ++i) {
-    value = "0" + value;
-  }
+  int numberZeros = 5;// Number of 0s wanted in file name:
+                      // particle00000...X.txt
+  for (size_t i = 0; i < numberZeros - numSize; ++i) { value = "0" + value; }
   return value;
 }
 
-MPI_Datatype setupMPICartesianType() {
-  MPI_Datatype MPI_Cartesian;
+MPI_Datatype setupMPICartesianType()
+{
+  MPI_Datatype MPI_Cartesian = nullptr;
   static const int NDIMS = 3;
-  int blockLengths[NDIMS] = {1, 1, 1};
-  MPI_Datatype types[NDIMS] = {MPI_DOUBLE, MPI_DOUBLE, MPI_DOUBLE};
+  int blockLengths[NDIMS] = { 1, 1, 1 };
+  MPI_Datatype types[NDIMS] = { MPI_DOUBLE, MPI_DOUBLE, MPI_DOUBLE };
   MPI_Aint offsets[NDIMS];
 
   offsets[0] = offsetof(Cartesian, x);
@@ -286,8 +283,9 @@ MPI_Datatype setupMPICartesianType() {
   return MPI_Cartesian;
 }
 
-MPI_Datatype setupMPIArray(MPI_Datatype base_type, int count) {
-  MPI_Datatype MPI_Arr;
+MPI_Datatype setupMPIArray(MPI_Datatype base_type, int count)
+{
+  MPI_Datatype MPI_Arr = nullptr;
   MPI_Type_contiguous(count, base_type, &MPI_Arr);
   MPI_Type_commit(&MPI_Arr);
   return MPI_Arr;
