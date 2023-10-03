@@ -1,6 +1,6 @@
 set(EXECUTABLE_TARGET bs_solctra)
 
-add_executable(${EXECUTABLE_TARGET} src/main_multinode.cpp src/solctra_multinode.cpp src/utils.cpp)
+add_executable(${EXECUTABLE_TARGET} src/main_multinode.cpp src/solctra_multinode.cpp src/utils.cpp src/catalyst_adaptor.cpp)
 
 
 target_link_libraries(
@@ -17,7 +17,7 @@ target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE MPI::MPI_CXX)
 find_package(OpenMP REQUIRED)
 target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE OpenMP::OpenMP_CXX)
 
-find_package(catalyst REQUIRED)
+find_package(catalyst 2.0 REQUIRED)
 target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE catalyst::catalyst)
 
 find_package(spdlog REQUIRED)

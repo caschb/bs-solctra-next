@@ -33,7 +33,7 @@ function(bs_solctra_setup_dependencies)
   endif()
 
   if(NOT TARGET catalyst::catalyst)
-    cpmaddpackage("https://gitlab.kitware.com/api/v4/projects/5912/packages/generic/catalyst/v2.0.0-rc4/catalyst-v2.0.0-rc4.zip")
+    cpmaddpackage("https://gitlab.kitware.com/paraview/catalyst.git@2.0.0-rc4")
   endif()
 
 
