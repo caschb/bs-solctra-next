@@ -1,4 +1,4 @@
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <spdlog/common.h>
 #include "solctra_multinode.h"
@@ -17,6 +17,7 @@
 #include <string>
 #include <utils.h>
 #include <vector>
+#include "catalyst_adaptor.h"
 
 using std::string;
 
@@ -42,7 +43,7 @@ void load_particles(const std::string &particles_file, Particles &particles, con
 
 int main(int argc, char **argv)
 {
-  spdlog::set_level(spdlog::level::debug);
+  spdlog::set_level(spdlog::level::info);
   CLI::App app("BS-Solctra");
 
   /*****MPI variable declarations and initializations**********/
@@ -117,6 +118,8 @@ int main(int argc, char **argv)
     handler << "Output path=[" << output << "]." << std::endl;
     handler << "MPI size=[" << comm_size << "]." << std::endl;
     handler << "Rank=[" << my_rank << "] => Processor Name=[" << processor_name << "]." << std::endl;
+
+    insitu::initialize();
   }
 
   /*********** Rank 0 distributes runtime parameters amongst ranks********/
