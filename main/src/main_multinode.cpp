@@ -17,7 +17,9 @@
 #include <string>
 #include <utils.h>
 #include <vector>
-#include "catalyst_adaptor.h"
+
+#include <ascent_adaptor.h>
+// #include "catalyst_adaptor.h"
 
 using std::string;
 
@@ -43,7 +45,7 @@ void load_particles(const std::string &particles_file, Particles &particles, con
 
 int main(int argc, char **argv)
 {
-  spdlog::set_level(spdlog::level::info);
+  spdlog::set_level(spdlog::level::debug);
   CLI::App app("BS-Solctra");
 
   /*****MPI variable declarations and initializations**********/
@@ -119,17 +121,22 @@ int main(int argc, char **argv)
     handler << "MPI size=[" << comm_size << "]." << std::endl;
     handler << "Rank=[" << my_rank << "] => Processor Name=[" << processor_name << "]." << std::endl;
 
-    insitu::initialize();
+    // insitu::initialize();
   }
-
+  spdlog::info("Before bcasting");
   /*********** Rank 0 distributes runtime parameters amongst ranks********/
-  MPI_Bcast(&steps, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
-  MPI_Bcast(&step_size, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast(&length, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
+  spdlog::info("After bcasting1");
+  MPI_Bcast(&step_size, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  spdlog::info("After bcasting2");
+  MPI_Bcast(&steps, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
+  spdlog::info("After bcasting3");
   MPI_Bcast(&mode, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
+  spdlog::info("Before bcasting4");
   MPI_Bcast(&debug_flag, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
 
   int output_size = output.size();
+  spdlog::info("output_size");
   MPI_Bcast(&output_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
   if (0 != my_rank) { output.resize(output_size); }
   MPI_Bcast(const_cast<char *>(output.data()), output_size, MPI_CHAR, 0, MPI_COMM_WORLD);

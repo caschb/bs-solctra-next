@@ -1,6 +1,12 @@
 set(EXECUTABLE_TARGET bs_solctra)
 
-add_executable(${EXECUTABLE_TARGET} src/main_multinode.cpp src/solctra_multinode.cpp src/utils.cpp src/catalyst_adaptor.cpp)
+if(bs_solctra_USE_ASCENT)
+    add_executable(${EXECUTABLE_TARGET} src/main_multinode.cpp src/solctra_multinode.cpp src/utils.cpp src/ascent_adaptor.cpp)
+elseif(bs_solctra_USE_CATALYST)
+    add_executable(${EXECUTABLE_TARGET} src/main_multinode.cpp src/solctra_multinode.cpp src/utils.cpp src/catalyst_adaptor.cpp)
+else()
+    add_executable(${EXECUTABLE_TARGET} src/main_multinode.cpp src/solctra_multinode.cpp src/utils.cpp)
+endif()
 
 
 target_link_libraries(
@@ -17,14 +23,21 @@ target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE MPI::MPI_CXX)
 find_package(OpenMP REQUIRED)
 target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE OpenMP::OpenMP_CXX)
 
-find_package(catalyst 2.0 REQUIRED)
-target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE catalyst::catalyst)
-
 find_package(spdlog REQUIRED)
 target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE spdlog::spdlog)
 
 find_package(CLI11 REQUIRED)
 target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE CLI11::CLI11)
+
+if(bs_solctra_USE_ASCENT)
+    find_package(Ascent REQUIRED
+        NO_DEFAULT_PATH
+        PATHS "/home/casch/Devel/ascent/install-debug")
+    target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE ascent::ascent)
+elseif(bs_solctra_USE_CATALYST)
+    find_package(catalyst 2.0 REQUIRED)
+    target_link_system_libraries(${EXECUTABLE_TARGET} PRIVATE catalyst::catalyst)
+endif()
 
 if(bs_solctra_solctra_ENABLE_KNL_OPTS)
     target_compile_options(${EXECUTABLE_TARGET} PRIVATE -mavx512f -mavx512pf -mavx512er -mavx512cd -march=knl)

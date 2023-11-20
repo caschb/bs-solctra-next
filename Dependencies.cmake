@@ -32,8 +32,10 @@ function(bs_solctra_setup_dependencies)
     cpmaddpackage("gh:CLIUtils/CLI11@2.3.2")
   endif()
 
-  if(NOT TARGET catalyst::catalyst)
-    cpmaddpackage("https://gitlab.kitware.com/paraview/catalyst.git@2.0.0-rc4")
+  if(bs_solctra_USE_CATALYST)
+    if(NOT TARGET catalyst::catalyst)
+      cpmaddpackage("https://gitlab.kitware.com/paraview/catalyst.git@2.0.0-rc4")
+    endif()
   endif()
 
 
